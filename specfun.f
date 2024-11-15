@@ -12444,3 +12444,112 @@ C                       <<< Calcuiate Y1(x) using (5.2.20)
         END
 C           STVH1(X,SH1)
 C
+
+C
+        SUBROUTINE STVHV(V,X,HV)
+C
+C       =======================================================
+C        Purpose:  Compute Struve Functions Hv(x) with
+C                  arbitrary order v  ( -8.0 ≤ v ≤ 12.5 )
+C        Input  :  v  --- Order of Hv(x)
+C                  x  --- Argument of Hv(x) ( x ≥ 0 )
+C        Output :  Hv --- Hv(x)
+C        Routine called: GAMMA2 to compute the GAMMA2 function
+C       =======================================================
+C
+         IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+         PI=3.141592653589793D0
+C
+         IF (X.EQ.0.0D0) THEN
+C                          <<< Treat x=0 as a special case
+            IF ((V.GT.-1.0D0).OR.(INT(V)-V.EQ.0.5D0)) THEN
+               HV=0.0D0
+            ELSE IF (V.LT.-1.0D0) THEN
+               HV=(-1)**(INT(0.5D0-V)-1)*1.0D+300
+            ELSE IF (V.EQ.-1.0D0) THEN
+               HV=2.0D0/PI
+            ENDIF
+            RETURN
+         ENDIF
+C
+C
+         IF (X.LE.20.0D0) THEN
+C                          <<< Use (11.1.3) when x ≤ 20
+            VO=V+1.5D0
+            CALL GAMMA2(VO,GA)
+            S=2.0D0/(DSQRT(PI)*GA)
+            R1=1.0D0
+            DO 10 K=1,100
+               VA=K+1.5D0
+               CALL GAMMA2(VA,GA)
+               VB=V+K+1.5D0
+               CALL GAMMA2(VB,GB)
+               R1=-R1*(0.5D0*X)**2
+               R2=R1/(GA*GB)
+               S=S+R2
+               IF(DABS(R2).LT.DABS(S)*1.0D-12) GO TO 15
+10          CONTINUE
+15          HV=(0.5D0*X)**(V+1.0D0)*S
+         ELSE
+C                          <<< Use (11.1.20) when x > 20
+            SA=(0.5D0*X)**(V-1.0D0)/PI
+            O=V+0.5D0
+            CALL GAMMA2(VO,GA)
+            S=DSQRT(PI)/GA
+            R1=1.0D0
+            DO 20 K=1,12
+               VA=K+0.5D0
+               CALL GAMMA2(VA,GA)
+               VB=-K+V+0.5D0
+               CALL GAMMA2(VB,GB)
+               R1=R1/(0.5*X)**2
+               S=S+GA/GB*R1
+20          CONTINUE
+C                          <<< Calculate Y1(x) using forward recurrence
+            S0=SA*S
+            U=DABS(V)
+            N=INT(U)
+            UO=U-N
+            DO 35 L=0,1
+               VT=4.0D0*(U0+L)**2
+               R1=1.0D0
+               PU1=1.0D0
+               DO 25 K=1,12
+                  R1=-0.0078125D0*R1*(VT-(4.D0*K-3.D0)**2)*
+     &               (VT-(4.D0*K-1.D0)**2)/((2.D0*K-1.D0)*K*X*X)
+                  PU1=PU1+R1
+25             CONTINUE
+               QU1=1.0D0
+               R2=1.0D0
+               DO 30 K=1,12
+                  R2=-0.0078125D0*R2*(VT-(4.D0*K-1.D0)**2)*
+     &               (VT-(4.D0*K+1.D0)**2)/((2.D0*K+1.D0)*K*X*X)
+                  QU1=QU1+R2
+30             CONTINUE
+               QU1=0.125D0*(VT-1.0D0)/X*QU1
+               IF (L.EQ.0) THEN
+                  PUO=PO1
+                  QUO=QU1
+               ENDIF
+35          CONTINUE
+            T0=X-(0.5*U0+0.25D0)*PI
+            T1=X-(0.5*U0+0.75D0)*PI
+            SR=DSQRT(2.0D0/(PI*X))
+            BY0=SR*(PU0*DSIN(TO)+QU0*DCOS(TO))
+            BY1=SR*(PU1*DSIN(T1)+QU1*DCOS(T1))
+            BF0=BY0
+            BF1=BY1
+            DO 40 K=2,N
+               BF=2.0D0*(K-1.0+U0)/X*BF1-BF0
+               BF0=BF1
+               BF1=BF
+40          CONTINUE
+            IF (N.EQ.0) BYV=BY0
+            IF (N.EQ.1) BYV=BY1
+            IF (N.GT.1) BYV=BF
+            HV=BYV+S0
+         ENDIF
+         RETURN
+        END
+C           STVHV(V,X,HV)
+C
