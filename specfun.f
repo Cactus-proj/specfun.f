@@ -12324,3 +12324,423 @@ C
         EDN=DSQRT(1.0D0-HK*HK*ESN*ESN)
         RETURN
         END
+
+
+
+
+C       ========================================================================
+C        Missing Functions.
+C        The following functions appear in CoSF.
+C
+C        Add by Chengyu HAN (2024)
+C
+C       -----------------------
+C        11. STRUVE FUNCTIONS
+C
+C           STVH0(X,SHO):     Compute struve function H0(x)
+C           STVH1(X,SH1):     Compute:struve function H1(x)
+C           STVHV(V,X,HV):    Compute struve function Hv(x) with
+C                 arbitrary order v ( -8.0 ≤ v ≤ 12.5 )
+C           STVL0(X,SL0):     Compute modified struve function L0(x)
+C           STVL1(X,SL1):     Compute modified struve function L1(x)
+C           STVLV(V,X,SLV):   Compute modified struve function Lv(x)
+C
+
+C
+        SUBROUTINE STVH0(X,SH0)
+C
+C       ==============================================
+C        Purpose: Compute Struve Function H0(x)
+C        Input  : x   --- Argument of H0(x) ( x ≥ 0 )
+C        output : SH0 --- H0(x)
+C       ==============================================
+C
+         IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+         PI=3.141592653589793D0
+         EPS=1.0D-12
+C
+         S=1.0D0
+         R=1.0D0
+         IF (X.LE.20.0D0) THEN
+C                             Use (11.1.4) when x ≤ 20
+            A0=2.0D0*X/PI
+            DO 10 K=1,60
+               R=-R*(X/(2.0D0*K+1.0D0))**2
+               S=S+R
+               IF(DABS(R).LT.DABS(S)*EPS) GO TO 15
+10          CONTINUE
+15          SH0=A0*S
+         ELSE
+C                             Use (11.1.21) when x > 20
+            KM=INT(0.5*(X+1.0))
+            IF (X.GE.50.0D0) KM=25
+            DO 20 K=1,KM
+               R=-R*((2.0D0*K-1.0D0)/X)**2
+               S=S+R
+               IF(DABS(R).LT.DABS(S)*EPS) GO TO 25
+20          CONTINUE
+C                             Calculate Y0(x) using (5.2.18)
+25          T=4.0D0/X
+            T2=T*T
+            P0=  ((((-.37043D-5*T2+.173565D-4)*T2-.487613D-4)
+     &         *T2+.17343D-3)*T2-.1753062D-2)*T2+.3989422793D0
+            Q0=T*(((((.32312D-5*T2-.142078D-4)*T2+.342468D-4)
+     &         *T2-.869791D-4)*T2+.4564324D-3)*T2-.0124669441D0)
+            TA0=X-0.25D0*PI
+            BY0=2.0D0/DSQRT(X)*(P0*DSIN(TA0)+Q0*DCOS(TA0))
+            SH0=2.0D0/(PI*X)*S+BY0
+         ENDIF
+         RETURN
+        END
+C           STVH0(X,SH0)
+C
+
+C
+        SUBROUTINE STVH1(X,SH1)
+C
+C       =============================================
+C        Purpose: Compute Struve Function H1(x)
+C        Input  : x   --- Argument of H1(x) ( x ≥ 0 )
+C        Output : SH1 --- H1(x)
+C       =============================================
+C
+         IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+         PI=3.141592653589793D0
+         EPS=1.0D-12
+C
+         R=1.0D0
+         IF (X.LE.20.0D0) THEN
+C                       <<< Use (11.1.5) when x ≤ 20
+            S=0.0D0
+            AO=-2.0D0/PI
+            DO 10 K=1,60
+               R=-R*X*X/(4.0D0*K*K-1.0D0)
+               S=S+R
+               IF(DABS(R).LT.DABS(S)*EPS) GO TO 15
+10          CONTINUE
+15          SH1=AO*S
+         ELSE
+C                       <<< Use (11.1.22) when x > 20
+            S=1.0D0
+            KM=INT(0.5*X)
+            IF (X.GT.50.0D0) KM=25
+            DO 20 K=1,KM
+               R=-R*(4.0D0*K*K-1.0D0)/(X*X)
+               S=S+R
+               IF(DABS(R).LT.DABS(S)*EPS) GO TO 25
+20          CONTINUE
+25          T=4.0D0/x
+C                       <<< Calcuiate Y1(x) using (5.2.20)
+            T2=T*T
+            P1=  ((((.42414D-5*T2-.20092D-4)*T2+.580759D-4)
+     &         *T2-.223203D-3)*T2+.29218256D-2)*T2+.3989422819D0
+            Q1=T*(((((-.36594D-5*T2+.1622D-4)*T2-.398708D-4)
+     &         *T2+.1064741D-3)*T2-.63904D-3)*T2+.0374008364D0)
+            TA1=X-0.75D0*PI
+            BY1=2.0D0/DSQRT(X)*(P1*DSIN(TA1)+Q1*DCOS(TA1))
+            SH1=2.0/PI*(1.0D0+S/(X*X))+BY1
+         ENDIF
+         RETURN
+        END
+C           STVH1(X,SH1)
+C
+
+C
+        SUBROUTINE STVHV(V,X,HV)
+C
+C       =======================================================
+C        Purpose:  Compute Struve Functions Hv(x) with
+C                  arbitrary order v  ( -8.0 ≤ v ≤ 12.5 )
+C        Input  :  v  --- Order of Hv(x)
+C                  x  --- Argument of Hv(x) ( x ≥ 0 )
+C        Output :  Hv --- Hv(x)
+C        Routine called: GAMMA2 to compute the GAMMA2 function
+C       =======================================================
+C
+         IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+         PI=3.141592653589793D0
+C
+         IF (X.EQ.0.0D0) THEN
+C                          <<< Treat x=0 as a special case
+            IF ((V.GT.-1.0D0).OR.(INT(V)-V.EQ.0.5D0)) THEN
+               HV=0.0D0
+            ELSE IF (V.LT.-1.0D0) THEN
+               HV=(-1)**(INT(0.5D0-V)-1)*1.0D+300
+            ELSE IF (V.EQ.-1.0D0) THEN
+               HV=2.0D0/PI
+            ENDIF
+            RETURN
+         ENDIF
+C
+C
+         IF (X.LE.20.0D0) THEN
+C                          <<< Use (11.1.3) when x ≤ 20
+            VO=V+1.5D0
+            CALL GAMMA2(VO,GA)
+            S=2.0D0/(DSQRT(PI)*GA)
+            R1=1.0D0
+            DO 10 K=1,100
+               VA=K+1.5D0
+               CALL GAMMA2(VA,GA)
+               VB=V+K+1.5D0
+               CALL GAMMA2(VB,GB)
+               R1=-R1*(0.5D0*X)**2
+               R2=R1/(GA*GB)
+               S=S+R2
+               IF(DABS(R2).LT.DABS(S)*1.0D-12) GO TO 15
+10          CONTINUE
+15          HV=(0.5D0*X)**(V+1.0D0)*S
+         ELSE
+C                          <<< Use (11.1.20) when x > 20
+            SA=(0.5D0*X)**(V-1.0D0)/PI
+            O=V+0.5D0
+            CALL GAMMA2(VO,GA)
+            S=DSQRT(PI)/GA
+            R1=1.0D0
+            DO 20 K=1,12
+               VA=K+0.5D0
+               CALL GAMMA2(VA,GA)
+               VB=-K+V+0.5D0
+               CALL GAMMA2(VB,GB)
+               R1=R1/(0.5*X)**2
+               S=S+GA/GB*R1
+20          CONTINUE
+C                          <<< Calculate Y1(x) using forward recurrence
+            S0=SA*S
+            U=DABS(V)
+            N=INT(U)
+            UO=U-N
+            DO 35 L=0,1
+               VT=4.0D0*(U0+L)**2
+               R1=1.0D0
+               PU1=1.0D0
+               DO 25 K=1,12
+                  R1=-0.0078125D0*R1*(VT-(4.D0*K-3.D0)**2)*
+     &               (VT-(4.D0*K-1.D0)**2)/((2.D0*K-1.D0)*K*X*X)
+                  PU1=PU1+R1
+25             CONTINUE
+               QU1=1.0D0
+               R2=1.0D0
+               DO 30 K=1,12
+                  R2=-0.0078125D0*R2*(VT-(4.D0*K-1.D0)**2)*
+     &               (VT-(4.D0*K+1.D0)**2)/((2.D0*K+1.D0)*K*X*X)
+                  QU1=QU1+R2
+30             CONTINUE
+               QU1=0.125D0*(VT-1.0D0)/X*QU1
+               IF (L.EQ.0) THEN
+                  PUO=PO1
+                  QUO=QU1
+               ENDIF
+35          CONTINUE
+            T0=X-(0.5*U0+0.25D0)*PI
+            T1=X-(0.5*U0+0.75D0)*PI
+            SR=DSQRT(2.0D0/(PI*X))
+            BY0=SR*(PU0*DSIN(TO)+QU0*DCOS(TO))
+            BY1=SR*(PU1*DSIN(T1)+QU1*DCOS(T1))
+            BF0=BY0
+            BF1=BY1
+            DO 40 K=2,N
+               BF=2.0D0*(K-1.0+U0)/X*BF1-BF0
+               BF0=BF1
+               BF1=BF
+40          CONTINUE
+            IF (N.EQ.0) BYV=BY0
+            IF (N.EQ.1) BYV=BY1
+            IF (N.GT.1) BYV=BF
+            HV=BYV+S0
+         ENDIF
+         RETURN
+        END
+C           STVHV(V,X,HV)
+C
+
+C
+        SUBROUTINE STVL0(X,SL0)
+C
+C       ===================================================
+C        Purpose: Compute Modified Struve Function L0(x)
+C        Input  : x   --- Argument of L0(x)  ( x ≥ 0 )
+C        output : SL0 --- L0(x)
+C       ===================================================
+C
+         IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+         PI=3.141592653589793D0
+         EPS=1.0D-12
+C
+         S=1.0D0
+         R=1.0D0
+         IF (X.LE.20.0D0) THEN
+C                             <<< Use (11.2.2) when x ≤ 20
+            A0=2.0D0*X/PI
+            DO 10 K=1,60
+               R=R*(X/(2.0D0*K+1.0D0))**2
+               S=S+R
+               IF(DABS(R/S).LT.EPS) GO TO 15
+10          CONTINUE
+15          SL0=A0*S
+         ELSE
+C                             <<< Use (11.2.17) when x > 20
+            KM=INT(0.5*(X+1.0))
+            IF (X.GE.50.0D0) KM=25
+            DO 20 K=1,KM
+               R=R*((2.0D0*K-1.0D0)/X)**2
+               S=S+R
+               IF (DABS(R/S).LT.EPS) GO TO 25
+20          CONTINUE
+25          A1=DEXP(X)/DSQRT(2.0D0*PI*X)
+            R=1.0D0
+            BI0=1.0D0
+C                             <<< Cakculale I0(x) using (6.2.1)
+            DO 30 K=1,16
+               R=0.125D0*R*(2.0D0*K-1.0D0)**2/(K*X)
+               BI0=BI0+R
+               IF(DABS(R/BI0).LT.EPS) GO TO 35
+30          CONTINUE
+35          BI0=A1*BI0
+            SL0=-2.0D0/(PI*X)*S+BI0
+         ENDIF
+         RETURN
+        END
+C           STVL0(X,SL0)
+C
+
+C
+        SUBROUTINE STVL1(X,SL1)
+C
+C       ===================================================
+C        Purpose: Compute modified struve function L1(x)
+C        Input  : x   --- Argument of L1(x)  ( x ≥ 0 )
+C        Output : SL1 --- L1(x)
+C       ===================================================
+C
+         IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+         PI=3.141592653589793D0
+         EPS=1.0D-12
+C
+         R=1.0D0
+         IF (X.LE.20.0D0) THEN
+C                             <<< Use (11.2.3) when x s 20
+            S=0.0D0
+            DO 10 K=1,60
+               R=R*X*X/(4.0D0*K*K-1.0D0)
+               S=S+R
+               IF(DABS(R/S).LT.EPS) GO TO 15
+10          CONTINUE
+15          SL1=2.0D0/PI*S
+         ELSE
+C                             <<< Use (11.2.18) when x > 20
+            S=1.0D0
+            KM=INT(0.5*X)
+            IF (X.GT.50.0D0) KM=25
+            DO 20 K=1,KM
+               R=R*(2.0D0*K+3.0D0)*(2.0D0*K+1.0D0)/(X*X)
+               S=S+R
+               IF(DABS(R/S).LT.EPS) GO TO 25
+20          CONTINUE
+25          SL1=2.0D0/PI*(-1.0D0+1.0D0/(X*X)+3.0D0*S/X**4)
+            A1=DEXP(X)/DSQRT(2.0D0*PI*X)
+            R=10D0
+            BI1=1.0D0
+C                             <<< Calculate I1(x) uslng (6.2.1)
+            DO 30 K=1,16
+               R=-0.125D0*R*(4.0D0-(2.0D0*K-1.0D0)**2)/(K*X)
+               BI1=BI1+R
+               IF(DABS(R).LT.DABS(BI1)*EPS) GO TO 35
+30          CONTINUE
+35          SL1=SL1+A1*BI1
+         ENDIF
+         RETURN
+        END
+C           STVL1(X,SL1)
+C
+
+C
+       SUBROUTINE STVLV(V,X,SLV)
+C
+C       ========================================================
+C        Purpose: Compute Modified Struve Function Lv(x)
+C        Input  : v   --- Order of Lv(x)  ( |v| ≤ 20 )
+C                 x   --- Argument of Lv(x)  ( x ≥ 0 )
+C        output : SLV --- Lv(x)
+C        Routine called: GAMMA2 to compute the gamma function
+C       ========================================================
+C
+         IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+         PI=3.141592653589793D0
+C
+         IF (X.EQ.0.0D0) THEN
+C                             <<<Treat x=0 as a special case
+            IF ((V.GT.-1.0D0).OR.(INT(V)-V.EQ.0.5D0)) THEN
+               SLV=0.0D0
+            ELSE IF (V.LT.-1.0D0) THEN
+               SLV=(-1)**(INT(0.5D0-V)-1)*1.0D+300
+            ELSE IF (V.EQ.-1.0D0) THEN
+               SLV=2.0D0/PI
+            ENDIF
+            RETURN
+         ENDIF
+C
+C
+         IF (X.LE.40.0D0) THEN
+C                             <<<Use (11.2.1)when xs20
+            V0=V+1.5D0
+            CALL GAMMA2(V0,GA)
+            S=2.0D0/(DSQRT(PI)*GA)
+            R1=1.0D0
+            DO 10 K=1,100
+               VA=K+1.5D0
+               CALL GAMMA2(VA,GA)
+               VB=V+K+1.5D0
+               CALL GAMMA2(VB,GB)
+               R1=R1*(0.5D0*X)**2
+               R2=R1/(GA*GB)
+               S=S+R2
+               IF(DABS(R2/S).LT.1.0D-12) GO TO 15
+10          CONTINUE
+15          SLV=(0.5D0*X)**(V+1.0D0)*S
+         ELSE
+C                                <<<Use(11.2.16)when x>20
+            SA=-1.0D0/PI*(0.5D0*X)**(V-1.0D0)
+            V0=V+0.5D0
+            CALL GAMMA2(V0,GA)
+            S=-DSQRT(PI)/GA
+            R1=-1.0D0
+            DO 20 K=1,12
+               VA=K+0.5D0
+               CALL GAMMA2(VA,GA)
+               VB=-K+V+0.5D0
+               CALL GAMMA2(VB,GB)
+               R1=-R1/(0.5*X)**2
+               S=S+R1*GA/GB
+20          CONTINUE
+            S0=SA*S
+            U=DABS(V)
+C                                <<<Calculate 1,(x) using fonward recurence
+            N=INT(U)
+            U0=U-N
+            DO 35 L=0,1
+               VT=U0+L
+               R=1.0D0
+               BIV=1.0D0
+               DO 25 K=1,16
+                  R=-0.125*R*(4.0D0*VT*VT-(2.0D0*K-1.0D0)**2)/(K*X)
+                  BIV=BIV+R
+                  IF(DABS(R).LT.DABS(BIV)*1.0D-15) GO TO 30
+25             CONTINUE
+30             IF (L.EQ.0) BIV0=BIV
+35          CONTINUE
+            BF0=BIV0
+            BF1=BIV
+            DO 40 K=2,N
+               BF=-2.0D0*(K-1.0D0+U0)/X*BF1+BF0
+               BF0=BF1
+               BF1=BF
+40          CONTINUE
+            IF (N.EQ.0) BIV=BIV0
+            IF (N.GT.1) BIV=BF
+            SLV=DEXP(X)/DSQRT(2.0D0*PI*X)*BIV+S0
+         ENDIF
+         RETURN
+        END
+C           STVLV(V,X,SLV)
+C
