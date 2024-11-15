@@ -61,6 +61,22 @@ C
 111      CONTINUE
          PRINT *, '[END]'
         END SUBROUTINE
+C
+        SUBROUTINE TEST_STVL0()
+         IMPLICIT NONE
+         INTEGER M,N
+         DOUBLE PRECISION X,Y,Z,RET
+         PRINT *, '[TEST_STVL0]'
+         PRINT *, 'X =', 0, ', RET =', 0.0
+         DO 999 N=0,21
+            X = N
+            CALL STVL0(X, RET)
+            PRINT *, X, ', ', RET
+999      CONTINUE
+         PRINT *, '[END]'
+        END SUBROUTINE
+C
+
 
 
 C
@@ -76,6 +92,7 @@ C
          CALL TEST_STVH0()
          CALL TEST_STVH1()
          CALL TEST_STVHV()
+         CALL TEST_STVL0()
 C
          PRINT *, ''
          PRINT *, '[TEST END]'
