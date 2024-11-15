@@ -10,7 +10,18 @@ all: libspecfun$(SHARED_LIB_EXT)
 libspecfun$(SHARED_LIB_EXT): specfun.f
 	$(FC) $(FFLAGS) -std=legacy -o $@ $^
 
-clean:
+test.exe: test.f
+	$(FC) -g -std=legacy -o $@ $^
+
+
+test: clean-test test.exe
+	./test.exe
+
+
+clean-test:
+	-rm -f test.exe
+
+clean: clean-test
 	-rm -f libspecfun$(SHARED_LIB_EXT)
 
 # Makefile debugging trick:
