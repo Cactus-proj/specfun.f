@@ -12324,3 +12324,25 @@ C
         EDN=DSQRT(1.0D0-HK*HK*ESN*ESN)
         RETURN
         END
+
+
+
+
+C       ========================================================================
+C        Missing Functions.
+C        The following functions appear in CoSF.
+C
+C        Add by Chengyu HAN (2024)
+C
+C       -----------------------
+C        11. STRUVE FUNCTIONS
+C           
+C           STVH0(X,SHO):     Compute struve function H0(x)
+C           STVH1(X,SH1):     Compute:struve function H1(x)
+C           STVHV(V,X,HV):    Compute struve function Hv(x) with
+C                 arbitrary order v ( -8.0 ≤ v ≤ 12.5 )
+C           STVL0(X,SL0):     Compute modified struve function L0(x)
+C           STVL1(X,SL1):     Compute modified struve function L1(x)
+C           STVLV(V,X,SLV):   Compute modified struve function Lv(x)
+C
+
