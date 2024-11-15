@@ -29,7 +29,20 @@ C
 999      CONTINUE
          PRINT *, '[END]'
         END SUBROUTINE
-
+C
+        SUBROUTINE TEST_STVH1()
+         IMPLICIT NONE
+         INTEGER M,N
+         DOUBLE PRECISION X,Y,Z,RET
+         PRINT *, '[TEST_STVH1]'
+         PRINT *, 'X =', 0, ', RET =', 0.0
+         DO 999 N=0,21
+            X = N
+            CALL STVH1(X, RET)
+            PRINT *, X, ', ', RET
+999      CONTINUE
+         PRINT *, '[END]'
+        END SUBROUTINE
 
 C
         PROGRAM MAIN
@@ -42,7 +55,7 @@ C
          PRINT *, ''
 C
          CALL TEST_STVH0()
-
+         CALL TEST_STVH1()
 C
          PRINT *, ''
          PRINT *, '[TEST END]'
