@@ -18,13 +18,15 @@ libspecfun$(SHARED_LIB_EXT): specfun.f
 dev: clean-dev dev.exe
 	./dev.exe
 specfun.test: clean-test specfun.test.exe
-	./specfun.test.exe
+	./specfun.test.exe > specfun.test.txt
+	cat specfun.test.txt
 test: specfun.test
 
 clean-dev:
 	-rm -f dev.exe
 clean-test:
 	-rm -f specfun.test.exe
+	-rm -f specfun.test.txt
 clean: clean-dev clean-test
 	-rm -f libspecfun$(SHARED_LIB_EXT)
 
