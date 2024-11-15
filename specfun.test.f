@@ -43,6 +43,25 @@ C
 999      CONTINUE
          PRINT *, '[END]'
         END SUBROUTINE
+C
+        SUBROUTINE TEST_STVHV()
+         IMPLICIT NONE
+         INTEGER M,N
+         DOUBLE PRECISION V,X,Y,Z,RET
+         PRINT *, '[TEST_STVHV]'
+         PRINT *, 'V =', 0, ', X =', 0, ', RET =', 0.0
+         DO 111 M=-4,3
+            V = M
+            DO 222 N=0,21
+               X = N
+               CALL STVHV(V, X, RET)
+               PRINT *, V, ',', X, ',', RET
+222         CONTINUE
+            PRINT *, ''
+111      CONTINUE
+         PRINT *, '[END]'
+        END SUBROUTINE
+
 
 C
         PROGRAM MAIN
@@ -56,6 +75,7 @@ C
 C
          CALL TEST_STVH0()
          CALL TEST_STVH1()
+         CALL TEST_STVHV()
 C
          PRINT *, ''
          PRINT *, '[TEST END]'
