@@ -12342,7 +12342,8 @@ C           CJY01(Z,  CBJ0,CDJ0,CBJ1,CDJ1, CBY0,CDY0,CBY1,CDY1):
 C                   Compute complex Bessel Functions J0(z), J1(z),
 C                   Y0(z), Y1(z), and their derivatives
 C           CJYNA(N,Z,NM,  CBJ,CDJ,CBY,CDY)
-C
+C                   Compute Bessel functions Jn(z) and Yn(z) and
+C                   their derivatives for a complex argument
 C
 C       -----------------------
 C        11. STRUVE FUNCTIONS

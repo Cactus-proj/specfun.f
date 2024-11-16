@@ -24,6 +24,9 @@ C
 C           CJY01(Z,  CBJ0,CDJ0,CBJ1,CDJ1, CBY0,CDY0,CBY1,CDY1):
 C                   Compute complex Bessel Functions J0(z), J1(z),
 C                   Y0(z), Y1(z), and their derivatives
+C           CJYNA(N,Z,NM,  CBJ,CDJ,CBY,CDY)
+C                   Compute Bessel functions Jn(z) and Yn(z) and
+C                   their derivatives for a complex argument
 C
 C       -----------------------
 C        11. STRUVE FUNCTIONS
@@ -42,10 +45,6 @@ C
 ### TODO
 
 ```fortran
-C       5.  BESSEL FUNCTIONS
-C       5.4 COMPUTATION OF Jn(X) AND Yn(X) WITH COMPLEX ARGUMENTS
-CJYNA(N,Z,NM,  CBJ,CDJ,CBY,CDY)
-
 C       8.  SPHERICAL BESSEL FUNCTIONS
 C       8.1 SPHERICAL BESSEL FUNCTIONS
 C       8.3 MODIFIED SPHERICAL BESSEL FUNCTIONS
