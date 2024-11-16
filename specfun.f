@@ -12350,7 +12350,11 @@ C        8.  SPHERICAL BESSEL FUNCTIONS
 C       ------------------------------------
 C
 C           CSPHJY(N,Z,NM,  CSJ,CDJ,CSY,CDY)
+C                   Compute spherical Bessel functions and their
+C                   derivatives with a complex argument
 C           CSPHIK(N,Z,NM,  CSI,CDI,CSK,CDK)
+C                   Compute modified spherical Bessel functions
+C                   and their derivatives with a complex argument
 C
 C       -----------------------
 C        11. STRUVE FUNCTIONS
@@ -12707,6 +12711,98 @@ C                                <<< Calculate the derivative of Yn
          RETURN
         END
 C           CJYNA(N,Z,  NM,CBJ,CDJ,CBY,CDY)
+C
+
+C
+        SUBROUTINE CSPHIK(N,Z, NM,CSI,CDI,CSK,CDK)
+C
+C       =============================================================
+C        Purpose: Compute modified spherical Bessel functions
+C                 and their derivatives with a complex argument
+C        Input  : Z --- Complex argument
+C                 n --- Order of in(z) & kn(z)  ( n = 0,1,2,... )
+C        output : CSI(n) --- in(z)
+C                 CDI(n) --- in'(z)
+C                 CSK(n) --- kn(z)
+C                 CDK(n) --- kn'(z)
+C                 NM --- Highest order computed
+C        Routines called:
+C                 MSTA1 and MSTA2 to calculate the starting
+C                 point for backward recurrence
+C       =============================================================
+C
+         IMPLICIT COMPLEX*16 (C,Z)
+         DOUBLE PRECISION A0,PI
+         DIMENSION CSI(0:N),CDI(0:N),CSK(0:N),CDK(0:N)
+         PI=3.141592653589793D0
+C
+         A0=CDABS(Z)
+         NM=N
+         IF (A0.LT.1.0D-60) THEN
+C                                <<<  Treat z = 0 as a specal case
+            DO 10 K=0,N
+               CSI(K)=0.0D0
+               CDI(K)=0.0D0
+               CSK(K)=1.0D+300
+               CDK(K)=-1.0D+300
+10          CONTINUE
+            CSI(0)=1.0D0
+            CDI(0)=.33333333333333D0
+            RETURN
+         ENDIF
+C
+
+         CI=CMPLX(0.0D0,1.0D0)
+         CSINH=CDSIN(CI*Z)/CI
+         CCOSH=CDCOS(CI*Z)
+         CSI0=CSINH/Z
+         CSI1=-(CSINH/Z-CCOSH)/Z
+         CSI(0)=CSI0
+         CSI(1)=CSI1
+         IF (N.GE.2) THEN
+            M=MSTA1(A0,200)
+C                                <<< Calculate In(z) by backward recurrence
+            IF (M.LT.N) THEN
+               NM=M
+            ELSE
+               M=MSTA2(A0,N,15)
+            ENDIF
+            CF0=0.0D0
+            CF1=1.0D0-100
+            DO 15 K=M,0,-1
+               CF=(2.0D0*K+3.0D0)*CF1/Z+CF0
+               IF(K.LE.NM) CSI(K)=CF
+               CF0=CF1
+               CF1=CF
+15          CONTINUE
+            IF(CDABS(CSI0).GT.CDABS(CSI1)) CS=CSI0/CF
+            IF(CDABS(CSI0).LE.CDABS(CSI1)) CS=CSI1/CF0
+            DO 20 K=0,NM
+20             CSI(K)=CS*CSI(K)
+         ENDIF
+
+C                                <<< Caiculate the dervatve of In(z)
+         CDI(0)=CSI(1)
+         DO 25 K=1,NM
+25          CDI(K)=CSI(K-1)-(K+1.0D0)/Z*CSI(K)
+         CSK(0)=0.5D0*PI/Z*CDEXP(-Z)
+         CSK(1)=CSK(0)*(1.0D0+1.0D0/Z)
+
+C                                <<< Calculate k0(z) using (8.3.29) or (8.3.30)
+         DO 30 K=2,NM
+            IF(CDABS(CSI(K-1)).GT.CDABS(CSI(K-2))) THEN
+               CSK(K)=(0.5D0*PI/(Z*Z)-CSI(K)*CSK(K-1))/CSI(K-1)
+            ELSE
+               CSK(K)=(CSI(K)*CSK(K-2)+(K-0.5D0)*PI/Z**3)/CSI(K-2)
+            ENDIF
+30       CONTINUE
+         CDK(0)=-CSK(1)
+C                                <<< Calculate the dervatve of kn(z)
+         DO 35 K=1,NM
+35          CDK(K)=-CSK(K-1)-(K+1.0D0)/Z*CSK(K)
+         RETURN
+        END
+C           CSPHIK(N,Z, NM,CSI,CDI,CSK,CDK)
 C
 
 

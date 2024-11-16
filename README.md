@@ -36,6 +36,8 @@ C           CSPHJY(N,Z,NM,  CSJ,CDJ,CSY,CDY)
 C                   Compute spherical Bessel functions and their
 C                   derivatives with a complex argument
 C           CSPHIK(N,Z,NM,  CSI,CDI,CSK,CDK)
+C                   Compute modified spherical Bessel functions
+C                   and their derivatives with a complex argument
 C
 C       -----------------------
 C        11. STRUVE FUNCTIONS
@@ -49,16 +51,6 @@ C           STVL0(X,SL0):     Compute modified struve function L0(x)
 C           STVL1(X,SL1):     Compute modified struve function L1(x)
 C           STVLV(V,X,SLV):   Compute modified struve function Lv(x)
 C
-```
-
-### TODO
-
-```fortran
-C       8.  SPHERICAL BESSEL FUNCTIONS
-C       8.1 SPHERICAL BESSEL FUNCTIONS
-C       8.3 MODIFIED SPHERICAL BESSEL FUNCTIONS
-CSPHJY(N,Z,NM,  CSJ,CDJ,CSY,CDY)
-CSPHIK(N,Z,NM,  CSI,CDI,CSK,CDK)
 ```
 
 
