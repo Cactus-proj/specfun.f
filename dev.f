@@ -106,8 +106,8 @@ C
 C
          PRINT *, '[TEST_CSPHJY]'
          PRINT *, '  Test Real X inpit:'
-         PRINT *, '  ref: CoSF: Table 5.7, 5.8'
-         DO 999 I=1,6
+         PRINT *, '  ref: CoSF: Table 8.1, 8.2'
+         DO 990 I=1,6
             X = DATA_X(I)
             Z = X
             PRINT *, '[X/Z =', X, ']'
@@ -125,11 +125,28 @@ C
      &            ,SJ(NM),DJ(NM),SY(NM),DY(NM), ' ;;'
 991         CONTINUE
             PRINT *, ''
-999      CONTINUE
+990      CONTINUE
          PRINT *, ''
 C
+
+         PRINT *, '  Test Complex Z inpit:'
+         PRINT *, '  ref: CoSF: Table 8.3~8.6'
+         DO 995 I=1,2
+            Z = DATA_Z(I)
+            PRINT *, '[Z =', Z, ']'
+            PRINT *, 'REF:    N,     NM,      CSJ, CDJ, CSY, CDY;;'
+            DO 996 J=1,15
+               N = DATA_NN(J)
+               CALL CSPHJY(N,Z, NM,CSJ,CDJ,CSY,CDY)
+               PRINT *, N,NM
+     &            ,CSJ(NM),CDJ(NM)
+     &            ,CSY(NM),CDY(NM)
+996         CONTINUE
+            PRINT *, ''
+995      CONTINUE
          PRINT *, '[END]'
         END SUBROUTINE
+C
 C
 
 
