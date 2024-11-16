@@ -105,6 +105,63 @@ C
         END SUBROUTINE
 C
 
+C
+        SUBROUTINE TEST_CSPHJY()
+         IMPLICIT NONE
+         INTEGER I,J,K, M,N, NM
+         DOUBLE PRECISION X,Y, RET
+         DOUBLE PRECISION SJ(0:100),DJ(0:100),SY(0:100),DY(0:100)
+         COMPLEX*16 Z, CSJ(0:100),CDJ(0:100),CSY(0:100),CDY(0:100)
+
+         INTEGER     DATA_X(6), DATA_NN(15)
+         COMPLEX*16  DATA_Z(2)
+         DATA DATA_X / 1,5,10, 25,50,100 /
+         DATA DATA_NN/ 0,1,2,3, 4,5,6,7, 8,9, 10,20,30,50, 100 /
+         DATA DATA_Z / (4.0,2.0), (20.0,10.0) /
+C
+         PRINT *, '[TEST_CSPHJY]'
+         PRINT *, '  Test Real X inpit:'
+         PRINT *, '  ref: CoSF: Table 8.1, 8.2'
+         DO 990 I=1,6
+            X = DATA_X(I)
+            Z = X
+            PRINT *, '[X/Z =', X, ']'
+            PRINT *, 'REF:    N, Z,     NM,      CSJ, CDJ, CSY, CDY;;'
+            DO 991 J=1,15
+               N = DATA_NN(J)
+               CALL CSPHJY(N,Z, NM,CSJ,CDJ,CSY,CDY)
+               ! REF
+               CALL SPHJ(N,X, NM,SJ,DJ)
+               CALL SPHY(N,X, NM,SY,DY)
+               PRINT *, '   ', N,DREAL(Z),NM
+     &            ,DREAL(CSJ(NM)),DREAL(CDJ(NM))
+     &            ,DREAL(CSY(NM)),DREAL(CDY(NM))
+               PRINT *, 'REF', N,X, NM
+     &            ,SJ(NM),DJ(NM),SY(NM),DY(NM), ' ;;'
+991         CONTINUE
+            PRINT *, ''
+990      CONTINUE
+         PRINT *, ''
+C
+
+         PRINT *, '  Test Complex Z inpit:'
+         PRINT *, '  ref: CoSF: Table 8.3~8.6'
+         DO 995 I=1,2
+            Z = DATA_Z(I)
+            PRINT *, '[Z =', Z, ']'
+            PRINT *, 'REF:    N,     NM,      CSJ, CDJ, CSY, CDY;;'
+            DO 996 J=1,15
+               N = DATA_NN(J)
+               CALL CSPHJY(N,Z, NM,CSJ,CDJ,CSY,CDY)
+               PRINT *, N,NM
+     &            ,CSJ(NM),CDJ(NM)
+     &            ,CSY(NM),CDY(NM)
+996         CONTINUE
+            PRINT *, ''
+995      CONTINUE
+         PRINT *, '[END]'
+        END SUBROUTINE
+C
 
 
 C
@@ -216,9 +273,14 @@ C
          PRINT *, '[TEST BEGIN]'
          PRINT *, ''
 C
+C        5.  BESSEL FUNCTIONS
          CALL TEST_CJY01()
          CALL TEST_CJYNA()
 C
+C        8.  SPHERICAL BESSEL FUNCTIONS
+         CALL TEST_CSPHJY()
+C
+C        11. STRUVE FUNCTIONS
          CALL TEST_STVH0()
          CALL TEST_STVH1()
          CALL TEST_STVHV()

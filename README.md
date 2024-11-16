@@ -33,6 +33,8 @@ C        8.  SPHERICAL BESSEL FUNCTIONS
 C       ------------------------------------
 C
 C           CSPHJY(N,Z,NM,  CSJ,CDJ,CSY,CDY)
+C                   Compute spherical Bessel functions and their
+C                   derivatives with a complex argument
 C           CSPHIK(N,Z,NM,  CSI,CDI,CSK,CDK)
 C
 C       -----------------------
