@@ -3,19 +3,62 @@ C       Test set for NEW functions in specfun.f
 C
 
 
-C       ========================================================================
-C        11. STRUVE FUNCTIONS
-C       ========================================================================
 C
-C           STVH0(X,SHO):     Compute struve function H0(x)
-C           STVH1(X,SH1):     Compute:struve function H1(x)
-C           STVHV(V,X,HV):    Compute struve function Hv(x) with
-C                 arbitrary order v ( -8.0 ≤ v ≤ 12.5 )
-C           STVL0(X,SL0):     Compute modified struve function L0(x)
-C           STVL1(X,SL1):     Compute modified struve function L1(x)
-C           STVLV(V,X,SLV):   Compute modified struve function Lv(x)
+C       -----------------------
+C        11. STRUVE FUNCTIONS
+C       -----------------------
+C
+C
+        SUBROUTINE TEST_CJY01()
+         IMPLICIT NONE
+         INTEGER M,N,DATAX(7)
+         DOUBLE PRECISION X,Y,RET
+         COMPLEX*16 Z, CBJ0,CDJ0,CBJ1,CDJ1, CBY0,CDY0,CBY1,CDY1
+         DOUBLE PRECISION BJ0,DJ0,BJ1,DJ1, BY0,DY0,BY1,DY1
+         COMPLEX*16 DATAZ(2)
+         DATA DATAX/ 0,1,5,10, 25,50,100 /
+         DATA DATAZ/ (4.0,2.0), (20.0,10.0) /
+C
+         PRINT *, '[TEST_CJY01]'
+         PRINT *, '  Test Real X inpit:'
+         PRINT *, '  ref: CoSF: Table 5.7, 5.8'
+         PRINT *, 'Z,   CBJ0,CDJ0,CBJ1,CDJ1,    CBY0,CDY0,CBY1,CDY1'
+         DO 999 N=1,7
+            ! N = 7
+            M = DATAX(N)
+            Z = M
+            CALL CJY01(Z, CBJ0,CDJ0,CBJ1,CDJ1, CBY0,CDY0,CBY1,CDY1)
+            PRINT *, M
+     &            ,DREAL(CBJ0),DREAL(CDJ0), DREAL(CBJ1),DREAL(CDJ1)
+     &            ,DREAL(CBY0),DREAL(CDY0), DREAL(CBY1),DREAL(CDY1)
+            X = M
+            CALL JY01A(X, BJ0,DJ0,BJ1,DJ1, BY0,DY0,BY1,DY1)
+            PRINT *, M
+     &            ,BJ0,DJ0,BJ1,DJ1
+     &            ,BY0,DY0,BY1,DY1
+999      CONTINUE
+         PRINT *, ''
+C
+         PRINT *, '  Test Complex Z inpit:'
+         PRINT *, '  ref: CoSF: Table 5.9, 5.10, 5.11, 5.12'
+         PRINT *, 'Z,   CBJ0,CDJ0,CBJ1,CDJ1,    CBY0,CDY0,CBY1,CDY1'
+         DO 990 N=1,2
+            Z = DATAZ(N)
+            CALL CJY01(Z, CBJ0,CDJ0,CBJ1,CDJ1, CBY0,CDY0,CBY1,CDY1)
+            PRINT *, Z
+     &            ,DIMAG(CBJ0),DIMAG(CDJ0), DIMAG(CBJ1),DIMAG(CDJ1)
+     &            ,DIMAG(CBY0),DIMAG(CDY0), DIMAG(CBY1),DIMAG(CDY1)
+990      CONTINUE
+         PRINT *, '[END]'
+        END SUBROUTINE
 C
 
+
+C
+C       -----------------------
+C        5.  BESSEL FUNCTIONS
+C       -----------------------
+C
         SUBROUTINE TEST_STVH0()
          IMPLICIT NONE
          INTEGER M,N
@@ -119,6 +162,8 @@ C
          PRINT *, 'Test set for NEW functions in specfun.f'
          PRINT *, '[TEST BEGIN]'
          PRINT *, ''
+C
+         CALL TEST_CJY01()
 C
          CALL TEST_STVH0()
          CALL TEST_STVH1()

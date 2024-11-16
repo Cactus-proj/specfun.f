@@ -17,9 +17,17 @@ then further rewrote it as a header-only C++ library ([scipy/xsf](https://github
 
 ```fortran
 C
-C       ========================================================================
+C       -----------------------
+C        5.  BESSEL FUNCTIONS
+C       -----------------------
+C
+C           CJY01(Z,  CBJ0,CDJ0,CBJ1,CDJ1, CBY0,CDY0,CBY1,CDY1):
+C                   Compute complex Bessel Functions J0(z), J1(z),
+C                   Y0(z), Y1(z), and their derivatives
+C
+C       -----------------------
 C        11. STRUVE FUNCTIONS
-C       ========================================================================
+C       -----------------------
 C
 C           STVH0(X,SHO):     Compute struve function H0(x)
 C           STVH1(X,SH1):     Compute:struve function H1(x)
@@ -36,7 +44,6 @@ C
 ```fortran
 C       5.  BESSEL FUNCTIONS
 C       5.4 COMPUTATION OF Jn(X) AND Yn(X) WITH COMPLEX ARGUMENTS
-CJY01(Z,  CBJ0,CDJ0,CBJ1,CDJ1, CBY0,CDY0,CBY1,CDY1)
 CJYNA(N,Z,NM,  CBJ,CDJ,CBY,CDY)
 
 C       8.  SPHERICAL BESSEL FUNCTIONS
