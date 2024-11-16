@@ -28,6 +28,13 @@ C           CJYNA(N,Z,NM,  CBJ,CDJ,CBY,CDY)
 C                   Compute Bessel functions Jn(z) and Yn(z) and
 C                   their derivatives for a complex argument
 C
+C       ------------------------------------
+C        8.  SPHERICAL BESSEL FUNCTIONS
+C       ------------------------------------
+C
+C           CSPHJY(N,Z,NM,  CSJ,CDJ,CSY,CDY)
+C           CSPHIK(N,Z,NM,  CSI,CDI,CSK,CDK)
+C
 C       -----------------------
 C        11. STRUVE FUNCTIONS
 C       -----------------------
