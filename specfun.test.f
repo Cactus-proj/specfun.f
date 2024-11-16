@@ -53,6 +53,59 @@ C
         END SUBROUTINE
 C
 
+C
+        SUBROUTINE TEST_CJYNA()
+         IMPLICIT NONE
+         INTEGER I,J,K, M,N, NM, DATAX(7)
+         DOUBLE PRECISION X,Y,RET
+         COMPLEX*16 Z,CBJ(0:100),CDJ(0:100),CBY(0:100),CDY(0:100)
+         DOUBLE PRECISION BJ0,DJ0,BJ1,DJ1, BY0,DY0,BY1,DY1
+         COMPLEX*16 DATAZ(2)
+         DATA DATAX/ 0,1,5,10, 25,50,100 /
+         DATA DATAZ/ (4.0,2.0), (20.0,10.0) /
+C
+         PRINT *, '[TEST_CJYNA]'
+         PRINT *, '  Test Real X inpit:'
+         PRINT *, '  ref: CoSF: Table 5.7, 5.8'
+         PRINT *, 'N,Z,  NM,CBJ,CDJ,CBY,CDY'
+         DO 999 I=1,7
+            M = DATAX(I)
+            ! ref
+            X = M
+            CALL JY01A(X, BJ0,DJ0,BJ1,DJ1, BY0,DY0,BY1,DY1)
+            Z = M
+            N = 0
+            CALL CJYNA(N,Z, NM,CBJ,CDJ,CBY,CDY)
+            PRINT *, N,M,NM,
+     &         DREAL(CBJ(NM)),DREAL(CDJ(NM)),
+     &         DREAL(CBY(NM)),DREAL(CDY(NM))
+            PRINT *, N,M,999, BJ0,DJ0,BY0,DY0
+            N = 1
+            CALL CJYNA(N,Z, NM,CBJ,CDJ,CBY,CDY)
+            PRINT *, N,M,NM,
+     &         DREAL(CBJ(NM)),DREAL(CDJ(NM)),
+     &         DREAL(CBY(NM)),DREAL(CDY(NM))
+            PRINT *, N,M,999, BJ1,DJ1,BY1,DY1
+999      CONTINUE
+         PRINT *, ''
+C
+         PRINT *, '  Test Complex Z inpit:'
+         PRINT *, '  ref: CoSF: Table 5.9, 5.10, 5.11, 5.12'
+         PRINT *, 'N, NM,CBJ,CDJ,CBY,CDY'
+         DO 990 I=1,2
+            Z = DATAZ(I)
+            PRINT *, 'Z =',Z
+            DO 991 J=1,7
+               N = DATAX(J)
+               CALL CJYNA(N,Z, NM,CBJ,CDJ,CBY,CDY)
+               PRINT *, N, NM,CBJ(NM),CDJ(NM),CBY(NM),CDY(NM)
+991         CONTINUE
+990      CONTINUE
+         PRINT *, '[END]'
+        END SUBROUTINE
+C
+
+
 
 C
 C       -----------------------
@@ -164,6 +217,7 @@ C
          PRINT *, ''
 C
          CALL TEST_CJY01()
+         CALL TEST_CJYNA()
 C
          CALL TEST_STVH0()
          CALL TEST_STVH1()
